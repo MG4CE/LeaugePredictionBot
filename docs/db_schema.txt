@@ -1,0 +1,28 @@
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table registered_servers {
+  discord_server_id int [primary key]
+  channel_id int
+  admin_role int
+  command_modifier string
+}
+
+Table game_listeners {
+  id int [primary key]
+  game_name string
+  discord_server_id int
+  discord_user_id int
+  game_account_username string
+  game_account_id string 
+}
+
+Table user_stats {
+  discord_user_id int [primary key]
+  discord_server_id int
+  score int
+  correct_predictions int
+  wrong_predictions int
+}
+
+Ref: registered_servers.discord_server_id < user_stats.discord_server_id
+Ref: registered_servers.discord_server_id < game_listeners.discord_server_id
