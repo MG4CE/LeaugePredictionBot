@@ -2,11 +2,12 @@ from abc import ABC, abstractmethod
 import discord
 from discord_controller.display_user_stats import DisplayUserStats
 from typing import Tuple
+from controller.controller import Controller
 
 class DiscordInterface(ABC):
 
     @abstractmethod
-    def match_prompt(self, game_info: dict, player_username: str, deadline_time_unix: int) -> Tuple[discord.ui.View, discord.Embed]:
+    def match_prompt(self, controller: Controller, game_info: dict, player_username: str, deadline_time_unix: int) -> Tuple[discord.ui.View, discord.Embed]:
         pass
 
     @abstractmethod
@@ -35,6 +36,3 @@ class DiscordInterface(ABC):
     
     def generic_prompt(self, title: str, description: str) -> discord.embeds:
         return discord.Embed(title=title, description=description, color=0x8742f5)
-
-
-    
