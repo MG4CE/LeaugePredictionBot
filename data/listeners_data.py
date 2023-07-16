@@ -111,7 +111,7 @@ class ListenersDataInterface:
         return 
     
     def get_user_listener(self, discord_user_id: int, discord_server_id: int, username: str, game_name: str) -> Listener:
-        cursor = self.conn.execute("SELECT * FROM listeners WHERE (discord_user_id = ? AND discord_server_id = ? AND game_name = ? AND game_account_username = ?)", (discord_user_id, discord_server_id, game_name, username))    
+        cursor = self.conn.execute("SELECT * FROM listeners WHERE discord_user_id = ? AND discord_server_id = ? AND game_name = ? AND game_account_username = ?", (discord_user_id, discord_server_id, game_name, username))    
         row = cursor.fetchone()
 
         if row == None:
