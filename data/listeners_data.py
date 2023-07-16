@@ -48,6 +48,20 @@ class ListenersDataInterface:
                                    row[4],
                                    row[5])
 
+    def get_all_listeners(self) -> List[Listener]:
+        cursor = self.conn.execute("SELECT * FROM listeners")
+        rows = cursor.fetchall()
+        
+        listener_list = []
+
+        for row in rows:
+            listener_list.append(create_listener_obj(row[0],
+                                                     row[1],
+                                                     row[2],
+                                                     row[3],
+                                                     row[4],
+                                                     row[5]))
+
     def get_all_game_listeners(self, game_name: str) -> List[Listener]:
         cursor = self.conn.execute("SELECT * FROM listeners WHERE game_name = ?", (game_name,))
         rows = cursor.fetchall()
@@ -94,6 +108,20 @@ class ListenersDataInterface:
                                                      row[4],
                                                      row[5]))
     
-        return listener_list
+        return 
+    
+    def get_user_listener(self, discord_user_id: int, discord_server_id: int, username: str, game_name: str) -> Listener:
+        cursor = self.conn.execute("SELECT * FROM listeners WHERE (discord_user_id = ? AND discord_server_id = ? AND game_name = ? AND game_account_username = ?)", (discord_user_id, discord_server_id, game_name, username))    
+        row = cursor.fetchone()
+
+        if row == None:
+            return None
+        
+        return create_listener_obj(row[0],
+                                   row[1],
+                                   row[2],
+                                   row[3],
+                                   row[4],
+                                   row[5])
 
     

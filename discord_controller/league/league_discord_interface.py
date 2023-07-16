@@ -1,11 +1,10 @@
 from discord_controller.discord_interface import DiscordInterface
 from discord_controller.discord_buttons import PredictionButtons
-from controller.controller import Controller
 from api.league.league_api import LeagueAPI
 from data.active_game import *
 from datetime import datetime
 import api.league.league_utils
-from typing import Tuple
+from typing import Tuple, Callable
 import discord
 
 
@@ -15,7 +14,7 @@ class LeagueDiscord(DiscordInterface):
         self.league_api = league_api
         self.champions = champions
 
-    def match_prompt(self, controller: Controller, game_info: dict, player_username: str, deadline_time_unix: int) -> Tuple[discord.ui.View, discord.Embed]:
+    def match_prompt(self, callback: Callable, game_info: dict, player_username: str, deadline_time_unix: int) -> Tuple[discord.ui.View, discord.Embed]:
         embed = discord.Embed(title=f"{player_username} has started a game, place your predictions!", color=0x4287f5)
         embed.description = f"Gamemode: **{api.league.league_utils.is_allowed_game_type(game_info['gameType'], game_info['gameMode'])[1]}**"
 
@@ -35,7 +34,7 @@ class LeagueDiscord(DiscordInterface):
 
         embed.timestamp = datetime.now()
 
-        return PredictionButtons(controller, timeout=30), embed
+        return PredictionButtons(callback, timeout=30), embed
 
     def close_prompt(self, player_username: str, did_win :bool, user_stats_list: list) -> discord.Embed:
         result_str = "guh"
