@@ -24,9 +24,9 @@ class ListenersDataInterface:
 
     def create_listener(self, listener: Listener) -> int:
         cursor = self.conn.execute("INSERT INTO listeners " +
-                                   "(game_name, discord_server_id, discord_user_id, game_account_username, game_account_id) " +
+                                   "(game_name, discord_server_id, discord_user_id, game_account_username, game_account_id, game_puuid) " +
                                    "VALUES (?, ?, ?, ?, ?)",
-                                   (listener.game_name, listener.discord_server_id, listener.discord_user_id, listener.game_account_username, listener.game_account_id))
+                                   (listener.game_name, listener.discord_server_id, listener.discord_user_id, listener.game_account_username, listener.game_account_id, listener.game_puuid))
         self.conn.commit()
         return cursor.lastrowid
 
@@ -47,7 +47,8 @@ class ListenersDataInterface:
                                    row[2],
                                    row[3],
                                    row[4],
-                                   row[5])
+                                   row[5],
+                                   row[6])
 
     def get_all_listeners(self) -> List[Listener]:
         cursor = self.conn.execute("SELECT * FROM listeners")
@@ -63,6 +64,8 @@ class ListenersDataInterface:
                                                      row[4],
                                                      row[5],
                                                      row[6]))
+        
+        return listener_list
 
     def get_all_game_listeners(self, game_name: str) -> List[Listener]:
         cursor = self.conn.execute("SELECT * FROM listeners WHERE game_name = ?", (game_name,))
@@ -113,7 +116,7 @@ class ListenersDataInterface:
                                                      row[5],
                                                      row[6]))
     
-        return 
+        return listener_list
     
     def get_user_listener(self, discord_user_id: int, discord_server_id: int, username: str, game_name: str) -> Listener:
         cursor = self.conn.execute("SELECT * FROM listeners WHERE discord_user_id = ? AND discord_server_id = ? AND game_name = ? AND game_account_username = ?", (discord_user_id, discord_server_id, game_name, username))    
