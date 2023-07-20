@@ -69,3 +69,23 @@ class LeagueAPI(GameInterface):
             if rank['queueType'] == "RANKED_SOLO_5x5":
                 return rank['tier'].capitalize() + " " + rank['rank']
         return "Unranked"
+
+    def get_matchlist_by_puuid(self, puuid: str) -> dict:
+        try:
+            response = self.lol_watcher.match.matchlist_by_puuid(DEFAULT_REGION, puuid)
+        except ApiError as err:
+            if err.response.status_code != 404:
+                logger.error("failed to fetch active league game data, response code: " + str(err.response.status_code))
+                sys.exit(1)
+            return None
+        return response
+    
+    def get_match_by_id(self, match_id: str) -> dict:
+        try:
+            response = self.lol_watcher.match.by_id(DEFAULT_REGION, match_id)
+        except ApiError as err:
+            if err.response.status_code != 404:
+                logger.error("failed to fetch active league game data, response code: " + str(err.response.status_code))
+                sys.exit(1)
+            return None
+        return response
