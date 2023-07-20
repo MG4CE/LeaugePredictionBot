@@ -18,7 +18,8 @@ class ListenersDataInterface:
                               discord_server_id     INTEGER  NOT NULL,
                               discord_user_id       INTEGER  NOT NULL,
                               game_account_username TEXT NOT NULL,
-                              game_account_id       TEXT);
+                              game_account_id       TEXT,
+                              game_puuid            TEXT);
                           ''')
 
     def create_listener(self, listener: Listener) -> int:
@@ -60,7 +61,8 @@ class ListenersDataInterface:
                                                      row[2],
                                                      row[3],
                                                      row[4],
-                                                     row[5]))
+                                                     row[5],
+                                                     row[6]))
 
     def get_all_game_listeners(self, game_name: str) -> List[Listener]:
         cursor = self.conn.execute("SELECT * FROM listeners WHERE game_name = ?", (game_name,))
@@ -74,7 +76,8 @@ class ListenersDataInterface:
                                                      row[2],
                                                      row[3],
                                                      row[4],
-                                                     row[5]))
+                                                     row[5],
+                                                     row[6]))
     
         return listener_list
 
@@ -90,7 +93,8 @@ class ListenersDataInterface:
                                                      row[2],
                                                      row[3],
                                                      row[4],
-                                                     row[5]))
+                                                     row[5],
+                                                     row[6]))
     
         return listener_list
 
@@ -106,7 +110,8 @@ class ListenersDataInterface:
                                                      row[2],
                                                      row[3],
                                                      row[4],
-                                                     row[5]))
+                                                     row[5],
+                                                     row[6]))
     
         return 
     
@@ -122,6 +127,7 @@ class ListenersDataInterface:
                                    row[2],
                                    row[3],
                                    row[4],
-                                   row[5])
+                                   row[5],
+                                   row[6])
 
     

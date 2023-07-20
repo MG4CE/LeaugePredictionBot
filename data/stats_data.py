@@ -53,7 +53,7 @@ class StatsDataInterface:
                                      row[4],
                                      row[5])
 
-    def get_user_by_discord_ids(self, user_id: int, server_id: int) -> UserStats:
+    def get_user_by_discord_id(self, user_id: int, server_id: int) -> UserStats:
         cursor = self.conn.execute("SELECT * FROM user_stats WHERE discord_user_id = ? AND discord_server_id = ?", (user_id, server_id))
         row = cursor.fetchone()
 
