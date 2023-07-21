@@ -1,4 +1,5 @@
 import sqlite3
+from loguru import logger
 from data.data_models import UserStats, create_user_stats_obj
 from typing import List
 
@@ -20,6 +21,7 @@ class StatsDataInterface:
                           ''')
 
     def create_user(self, user: UserStats) -> int:
+        logger.debug("create_user for server_id: " + str(user.discord_server_id) + " user_id: " + str(user.discord_user_id))
         cursor = self.conn.execute("INSERT INTO user_stats " +
                                    "(discord_user_id, discord_server_id, score, correct_predictions, wrong_predictions) " +
                                    "VALUES (?, ?, ?, ?, ?)",
@@ -29,17 +31,20 @@ class StatsDataInterface:
     
 
     def delete_user_by_id(self, id: int) -> int:
+        logger.debug("delete_user_by_id id: " + str(id))
         count = self.conn.execute("DELETE FROM user_stats WHERE id = ?", (id, )).rowcount
         self.conn.commit()
         return count
 
     def delete_user_by_discord_ids(self, user_id: int, server_id: int) -> int:
+        logger.debug("delete_user_by_discord_ids user_id: " + str(user_id) + " server_id: " + str(server_id))
         count = self.conn.execute("DELETE FROM user_stats WHERE discord_user_id = ? AND discord_server_id = ?", 
                                  (user_id, server_id)).rowcount
         self.conn.commit()
         return count
 
     def get_user_by_id(self, id: int) -> UserStats:
+        logger.debug("get_user_by_id id: " + str(id))
         cursor = self.conn.execute("SELECT * FROM user_stats WHERE id = ?", (id,))
         row = cursor.fetchone()
 
@@ -54,6 +59,7 @@ class StatsDataInterface:
                                      row[5])
 
     def get_user_by_discord_id(self, user_id: int, server_id: int) -> UserStats:
+        logger.debug("get_user_by_discord_id user_id: " + str(user_id) + " server_id: " + str(server_id))
         cursor = self.conn.execute("SELECT * FROM user_stats WHERE discord_user_id = ? AND discord_server_id = ?", (user_id, server_id))
         row = cursor.fetchone()
 
@@ -68,6 +74,8 @@ class StatsDataInterface:
                                      row[5])
 
     def update_user_stats(self, id :int, correct_predictions: int, wrong_predictions: int, score: int) -> int:
+        logger.debug("update_user_stats id: " + str(id) + " correct_predictions: " + str(correct_predictions) + " wrong_predictions: " + str(wrong_predictions) + " score: " + str(score))
+
         count = self.conn.execute("UPDATE user_stats SET score = ?, correct_predictions = ?, wrong_predictions = ? WHERE id = ?", 
                                  (score, correct_predictions, wrong_predictions, id)).rowcount
         self.conn.commit()

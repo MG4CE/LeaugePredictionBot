@@ -1,4 +1,5 @@
 import sqlite3
+from loguru import logger
 from data.listeners_data import ListenersDataInterface
 from data.servers_data import ServersDataInterface
 from data.stats_data import StatsDataInterface
@@ -11,6 +12,7 @@ class DatabaseController:
     """
     
     def __init__(self, conn : sqlite3.Connection) -> None:
+        logger.debug("init DatabaseController")
         self.conn = conn
         self.listeners = ListenersDataInterface(self.conn)
         self.servers = ServersDataInterface(self.conn)
