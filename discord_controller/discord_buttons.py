@@ -10,8 +10,8 @@ class PredictionButtons(discord.ui.View):
 
     @discord.ui.button(label="Predict Win", style=discord.ButtonStyle.success)
     async def win_button_callback(self, interaction: discord.interactions.Interaction, button):
-        self.callback(True, interaction)
+        await self.callback(True, interaction)
 
     @discord.ui.button(label="Predict Loss", style=discord.ButtonStyle.danger)
     async def loss_button_callback(self, interaction: discord.interactions.Interaction, button):
-        self.callback(False, interaction)
+        await self.callback(False, interaction)
