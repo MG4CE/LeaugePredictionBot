@@ -20,15 +20,15 @@ class ListenersDataInterface:
                               discord_user_id       INTEGER  NOT NULL,
                               game_account_username TEXT NOT NULL,
                               game_account_id       TEXT,
-                              game_puuid            TEXT);
+                              game_account_puuid    TEXT);
                           ''')
 
     def create_listener(self, listener: Listener) -> int:
         logger.debug("create_listener for game_name: " + str(listener.game_name) + " server_id: " + str(listener.discord_server_id) + " user_id: " + str(listener.discord_user_id) + " username: " + listener.game_account_username)
         cursor = self.conn.execute("INSERT INTO listeners " +
-                                   "(game_name, discord_server_id, discord_user_id, game_account_username, game_account_id, game_puuid) " +
-                                   "VALUES (?, ?, ?, ?, ?)",
-                                   (listener.game_name, listener.discord_server_id, listener.discord_user_id, listener.game_account_username, listener.game_account_id, listener.game_puuid))
+                                   "(game_name, discord_server_id, discord_user_id, game_account_username, game_account_id, game_account_puuid) " +
+                                   "VALUES (?, ?, ?, ?, ?, ?)",
+                                   (listener.game_name, listener.discord_server_id, listener.discord_user_id, listener.game_account_username, listener.game_account_id, listener.game_account_puuid))
         self.conn.commit()
         return cursor.lastrowid
 

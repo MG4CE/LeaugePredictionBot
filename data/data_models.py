@@ -7,7 +7,7 @@ class Listener(NamedTuple):
     discord_user_id: int
     game_account_username: str
     game_account_id: str
-    game_puuid: str
+    game_account_puuid: str
 
 class RegisteredServer(NamedTuple):
     discord_server_id: int
@@ -29,14 +29,14 @@ def create_listener_obj(id: int,
                         discord_user_id: int,
                         game_account_username: str,
                         game_account_id: str,
-                        game_puuid: str) -> Listener:
+                        game_account_puuid: str) -> Listener:
     return Listener(id,
                     game_name,
                     discord_server_id,
                     discord_user_id,
                     game_account_username,
                     game_account_id,
-                    game_puuid)
+                    game_account_puuid)
 
 def create_registered_server_obj(discord_server_id: int,
                                  channel_id: str,
