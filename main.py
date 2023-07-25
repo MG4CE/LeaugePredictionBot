@@ -63,6 +63,7 @@ controller_cog = ControllerCog(RIOT_API_KEY, sqlite_con, bot)
 
 @bot.event
 async def on_ready():
+    #TODO: change that all active guilds are in db
     logger.info("Bot started, logged on as {}!", bot.user)
 
 @bot.event

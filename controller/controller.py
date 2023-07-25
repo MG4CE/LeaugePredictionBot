@@ -49,6 +49,8 @@ class ControllerCog(commands.Cog):
             server = self.db_controller.servers.get_server(listener.discord_server_id)
             if server.channel_id == 0:
                 continue
+            #TODO: add some sort of system to ensure that we dont send a another match prompt right after game has ended
+            #      can not remove active game and only remove in gc timer inside active game manager with flag
             if self.league_api.is_user_in_game(listener.game_account_id):
                 logger.info(listener.game_account_username + " is in a " + listener.game_name + " game")
                 match_info = self.league_api.get_user_current_match(listener.game_account_id)
@@ -69,7 +71,6 @@ class ControllerCog(commands.Cog):
                         game_win = False
                         user_stats_disp_list = []
 
-                        #broke
                         for participant in match['info']['participants']:
                             if participant['summonerName'] == active_game.listener.game_account_username:
                                 game_win = participant['win']
