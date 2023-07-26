@@ -39,12 +39,12 @@ class ControllerCog(commands.Cog):
         super().__init__()
         
         self.listener_list = self.db_controller.listeners.get_all_listeners()
-        self.gameid_history = []
+        # self.gameid_history = []
 
-    @tasks.loop(seconds=GAMEID_GC_SEC)
-    async def gc_gameid_history_list(self):
-        #TODO: add a time to each element in list and clear based on that
-        self.gameid_history = []
+    # @tasks.loop(seconds=GAMEID_GC_SEC)
+    # async def gc_gameid_history_list(self):
+    #     #TODO: add a time to each element in list and clear based on that
+    #     self.gameid_history = []
 
     @tasks.loop(seconds=WATCHER_THREAD_WAIT_SEC)
     async def watcher_thread_func(self):
@@ -67,12 +67,12 @@ class ControllerCog(commands.Cog):
                     if match_info['gameLength'] >= GAME_LENGTH_VOTING_CUTOFF_SEC:
                         continue
                     
-                    if match_info['gameId'] in self.gameid_history:
-                        continue
+                    # if match_info['gameId'] in self.gameid_history:
+                    #     continue
 
-                    self.gameid_history.append(match_info['gameId'])
+                    # self.gameid_history.append(match_info['gameId'])
 
-                    logger.info("{} is in a {} game", listener.game_account_username, listener.game_name)
+                    logger.info("{} is in a {} game, gameLength[{}]", listener.game_account_username, listener.game_name, match_info['gameLength'])
 
                     channel = self.bot.get_channel(server.channel_id)
                     view, embed = self.league_discord.match_prompt(self.process_prediction_selection_button_action, match_info, listener.game_account_username, int(time.time()) + PREDICTION_TIMEOUT_SEC)
@@ -84,7 +84,7 @@ class ControllerCog(commands.Cog):
         #TODO: add gc for cancelled games or games that never ended
         for active_game in self.active_game_controller.active_games:
             if self.league_api.is_match_done(active_game.listener.game_account_id):
-                logger.info("{} has finished their {} game", active_game.listener.game_account_username, listener.game_name)
+                logger.info("{} has finished their {} game", active_game.listener.game_account_username, active_game.listener.game_name)
 
                 match_list = self.league_api.get_matchlist_by_puuid(active_game.listener.game_account_puuid)
                 if match_list:
@@ -136,12 +136,12 @@ class ControllerCog(commands.Cog):
                             else:
                                 game_result_str = "lost"
                             embed = self.league_discord.generic_prompt("No predictions 😭", active_game.listener.game_account_username + " has " + game_result_str)
-                        server = self.db_controller.servers.get_server(listener.discord_server_id)
-                        channel =self.bot.get_channel(server.channel_id)
+                        server = self.db_controller.servers.get_server(active_game.listener.discord_server_id)
+                        channel = self.bot.get_channel(server.channel_id)
                         await channel.send(embed=embed)
                         self.active_game_controller.active_games.remove(active_game)
                 else:
-                    logger.error("failed to fetch {} matchlist for {}", listener.game_name, listener.game_account_username)
+                    logger.error("failed to fetch {} matchlist for {}", active_game.game_name, active_game.listener.game_account_username)
 
     async def process_prediction_selection_button_action(self, predict_win: bool, interaction: discord.interactions.Interaction):
         logger.debug("user vote received for user[{}] in server[{}], prediction={}", interaction.user.id, interaction.guild.id, predict_win)
