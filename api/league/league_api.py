@@ -44,7 +44,7 @@ class LeagueAPI(GameInterface):
         
         logger.debug("is_user_in_game account_id={} returned a 200 response", account_id)
 
-        return is_allowed_game_type(response['game_type'], response['game_mode'])[0]
+        return is_allowed_game_type(response['gameType'], response['gameMode'])[0]
 
     def get_user_current_match(self, account_id: str) -> dict:
         try:
