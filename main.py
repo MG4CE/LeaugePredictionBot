@@ -48,7 +48,7 @@ if not RIOT_API_KEY or not DISCORD_API_KEY:
     sys.exit(1)
 
 # Create database directory if it does not exist
-if not os.path.exists:
+if not os.path.exists(DB_DIR_PATH):
     os.mkdir(DB_DIR_PATH)
 
 # Connect into database, create new database if no database exists
