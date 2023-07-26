@@ -75,13 +75,13 @@ class StatsDataInterface:
 
     def update_user_stats(self, id :int, correct_predictions: int, wrong_predictions: int, score: int) -> int:
         logger.debug("update_user_stats id: " + str(id) + " correct_predictions: " + str(correct_predictions) + " wrong_predictions: " + str(wrong_predictions) + " score: " + str(score))
-
         count = self.conn.execute("UPDATE user_stats SET score = ?, correct_predictions = ?, wrong_predictions = ? WHERE id = ?", 
                                  (score, correct_predictions, wrong_predictions, id)).rowcount
         self.conn.commit()
         return count
     
     def get_top_user_score_list(self, num_entries: int) -> List[UserStats]:
+        logger.debug("get_top_user_score_list")
         cursor = self.conn.execute("SELECT * FROM user_stats ORDER BY score DESC LIMIT ?", (num_entries, ))
         rows = cursor.fetchall()
         

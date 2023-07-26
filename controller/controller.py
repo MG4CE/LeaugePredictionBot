@@ -46,24 +46,32 @@ class ControllerCog(commands.Cog):
         for listener in self.listener_list:
             if self.active_game_controller.is_server_id_in_active_games(listener.discord_server_id):
                 continue
+            
             server = self.db_controller.servers.get_server(listener.discord_server_id)
             if server.channel_id == 0:
                 continue
+            
             #TODO: add some sort of system to ensure that we dont send a another match prompt right after game has ended
             #      can not remove active game and only remove in gc timer inside active game manager with flag
+            #TODO: check if allowed match
             if self.league_api.is_user_in_game(listener.game_account_id):
-                logger.info(listener.game_account_username + " is in a " + listener.game_name + " game")
+                logger.info("%s is in a %s game", listener.game_account_username, listener.game_name)
+                
                 match_info = self.league_api.get_user_current_match(listener.game_account_id)
                 if match_info:
                     #TODO: check game time < 5 mins
                     channel = self.bot.get_channel(server.channel_id)
-                    view, embed = self.league_discord.match_prompt(self.process_prediction_selection_button_command, match_info, listener.game_account_username, int(time.time()) + PREDICTION_TIMEOUT_SEC)
+                    view, embed = self.league_discord.match_prompt(self.process_prediction_selection_button_action, match_info, listener.game_account_username, int(time.time()) + PREDICTION_TIMEOUT_SEC)
                     message = await channel.send(view=view, embed=embed)
                     self.active_game_controller.add_active_game(ActiveGame(listener, message.id, match_info['gameId'], int(time.time()) + PREDICTION_TIMEOUT_SEC))
+                else:
+                    logger.error("failed to fetch current %s game for %s", listener.game_account_username, listener.game_name)
+
 
         for active_game in self.active_game_controller.active_games:
             if self.league_api.is_match_done(active_game.listener.game_account_id):
-                logger.info(active_game.listener.game_account_username + " has finished their " + listener.game_name + " game")
+                logger.info("%s has finished their %s game", active_game.listener.game_account_username, listener.game_name)
+
                 match_list = self.league_api.get_matchlist_by_puuid(active_game.listener.game_account_puuid)
                 if match_list:
                     match = self.league_api.get_match_by_id(match_list[0])
@@ -78,7 +86,7 @@ class ControllerCog(commands.Cog):
                         for prediction in active_game.predictions:
                             user_stats = self.db_controller.user_stats.get_user_by_discord_id(prediction.user_id, active_game.listener.discord_server_id)
                             if user_stats is None:
-                                logger.error("Failed to fetch user stats")
+                                logger.error("failed to fetch user stats! user[%d] server[%d]", prediction.user_id, active_game.listener.discord_server_id)
                                 continue
 
                             if prediction.predicted_win == game_win:
@@ -112,18 +120,22 @@ class ControllerCog(commands.Cog):
                         channel =self.bot.get_channel(server.channel_id)
                         await channel.send(embed=embed)
                         self.active_game_controller.active_games.remove(active_game)
+                else:
+                    logger.error("failed to fetch %s matchlist for %s", listener.game_name, listener.game_account_username)
 
-    async def process_prediction_selection_button_command(self, predict_win: bool, interaction: discord.interactions.Interaction):
+    async def process_prediction_selection_button_action(self, predict_win: bool, interaction: discord.interactions.Interaction):
+        logger.debug("user vote received for user[%d] in server[%d], prediction=%s", interaction.user.id, interaction.guild.id, predict_win)
         for active_game in self.active_game_controller.active_games:
             if active_game.discord_message_id == interaction.message.id:
                 if active_game.voting_expire_time <= int(time.time()):
+                    logger.debug("user vote ignored, voting time expired!")
                     return
         
         user = self.db_controller.user_stats.get_user_by_discord_id(interaction.user.id, interaction.guild.id)
         if user is None:
             count = self.db_controller.user_stats.create_user(create_user_stats_obj(0, interaction.user.id, interaction.guild.id, DEFAULT_START_SCORE, 0, 0))
             if count == 0:
-                logger.error("Failed to create new user!")
+                logger.error("failed to create new user!")
                 return
         
         for active_game in self.active_game_controller.active_games:
@@ -135,23 +147,23 @@ class ControllerCog(commands.Cog):
             predict_str = "You are predicting a victory."
         else:
             predict_str = "You are predicting a defeat."
-
+    
         await interaction.response.send_message(embed=self.league_discord.generic_prompt("Prediction Received", predict_str), ephemeral=True)
 
     @commands.command()
     async def leaderboard(self, ctx):
-        logger.debug("leaderboard command triggered")
+        logger.debug("leaderboard command triggered. user[%d] server[%d]", ctx.author.id, ctx.guild.id)
         user_list = self.db_controller.user_stats.get_top_user_score_list(LEADERBOARD_USER_LIMIT)
         await ctx.send(embed=self.league_discord.leaderboard_prompt(user_list))
 
     @commands.command()
     async def help(self, ctx):
-        logger.debug("help command triggered")
+        logger.debug("help command triggered. user[%d] server[%d]", ctx.author.id, ctx.guild.id)
         await ctx.send(embed=self.league_discord.help_prompt())
     
     @commands.command()
     async def stats(self, ctx, user: discord.User=None):
-        logger.debug("stats command triggered")
+        logger.debug("stats command triggered. user[%d] server[%d]", ctx.author.id, ctx.guild.id)
         if not user:
             userId = ctx.author.id
         else:
@@ -173,31 +185,34 @@ class ControllerCog(commands.Cog):
 
     @commands.command(name="create_listener")
     async def create_listener(self, ctx, arg1, user: discord.User=None):
-        #TODO: Limit one listener per server
         if ctx.author.id != SUPER_ADMIN_TESTING:
             return
         
-        logger.debug("create_listener command triggered")      
+        logger.debug("create_listener command triggered. user[%d] server[%d]", ctx.author.id, ctx.guild.id)
 
         if not user or not arg1:
+            logger.debug("invalid arguments received! user[%d] server[%d]", ctx.author.id, ctx.guild.id)
             await ctx.send(embed=self.league_discord.error_prompt("Missing argument, please mention discord user and league username"), ephemeral=True)
             return
 
         user_data = self.league_api.get_account_data(arg1)
 
         if user_data is None:
+            logger.debug("league username not found within riot api! user[%d] server[%d]", ctx.author.id, ctx.guild.id)
             await ctx.send(embed=self.league_discord.error_prompt("Unknown league user!"), ephemeral=True)
             return
         
         listener = self.db_controller.listeners.get_user_listener(user.id, ctx.guild.id, arg1, "lol")
 
         if listener:
+            logger.debug("listener already exists! user[%d] server[%d]", ctx.author.id, ctx.guild.id)
             await ctx.send(embed=self.league_discord.error_prompt("Listener already exists"), ephemeral=True)
             return
         
         count = self.db_controller.listeners.create_listener(create_listener_obj(0, "lol", ctx.guild.id, user.id, arg1, user_data['id'], user_data['puuid']))
         
         if count == 0:
+            logger.error("failed to create listener! user[%d] server[%d]", ctx.author.id, ctx.guild.id)
             await ctx.send(embed=self.league_discord.error_prompt("Internal error, failed to create listener!"), ephemeral=True)
             return
         
@@ -213,21 +228,24 @@ class ControllerCog(commands.Cog):
         if ctx.author.id != SUPER_ADMIN_TESTING:
             return
         
-        logger.debug("delete_listener command triggered")      
+        logger.debug("delete_listener command triggered. user[%d] server[%d]", ctx.author.id, ctx.guild.id)
         
         if not arg1 or not user:
+            logger.debug("invalid arguments received! user[%d] server[%d]", ctx.author.id, ctx.guild.id)
             await ctx.send(embed=self.league_discord.error_prompt("Missing argument(s), please provide league username and mention target user"), ephemeral=True)
             return
 
         listener = self.db_controller.listeners.get_user_listener(user.id, ctx.guild.id, arg1, "lol")
 
         if listener is None:
+            logger.debug("listener does not exist! user[%d] server[%d]", ctx.author.id, ctx.guild.id)
             await ctx.send(embed=self.league_discord.error_prompt("Listener does not exist"), ephemeral=True)
             return
         
         count = self.db_controller.listeners.delete_listener(listener.id)
 
         if count == 0:
+            logger.error("failed to delete listener! user[%d] server[%d]", ctx.author.id, ctx.guild.id)
             await ctx.send(embed=self.league_discord.error_prompt("Internal error, nothing was deleted!"), ephemeral=True)
             return
         
@@ -240,17 +258,19 @@ class ControllerCog(commands.Cog):
         if ctx.author.id != SUPER_ADMIN_TESTING:
             return
 
-        logger.debug("set_channel command triggered")      
+        logger.debug("set_channel command triggered. user[%d] server[%d]", ctx.author.id, ctx.guild.id)
 
         server = self.db_controller.servers.get_server(ctx.guild.id)
 
         if server is None:
+            logger.error("server that triggered command does not exist in db! user[%d] server[%d]", ctx.author.id, ctx.guild.id)
             await ctx.send(embed=self.league_discord.error_prompt("Internal error"), ephemeral=True)
             return
 
         count = self.db_controller.servers.update_channel_id(ctx.guild.id, ctx.channel.id) 
 
         if count == 0:
+            logger.error("failed to update channel id in db! user[%d] server[%d]", ctx.author.id, ctx.guild.id)
             await ctx.send(embed=self.league_discord.error_prompt("Internal error"), ephemeral=True)
             return
 
