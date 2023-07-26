@@ -18,13 +18,13 @@ class ListenersDataInterface:
                               game_name             TEXT NOT NULL,
                               discord_server_id     INTEGER  NOT NULL,
                               discord_user_id       INTEGER  NOT NULL,
-                              game_account_username TEXT NOT NULL,
+                              game_account_username TEXT NOT NULL,              
                               game_account_id       TEXT,
                               game_account_puuid    TEXT);
                           ''')
 
     def create_listener(self, listener: Listener) -> int:
-        logger.debug("create_listener for game_name: " + str(listener.game_name) + " server_id: " + str(listener.discord_server_id) + " user_id: " + str(listener.discord_user_id) + " username: " + listener.game_account_username)
+        logger.debug("create_listener for game_name: " + str(listener.game_name) + " server_id: " + str(listener.discord_server_id) + " user_id: " + str(listener.discord_user_id) + " username: " + listener.game_account_username + " from db")
         cursor = self.conn.execute("INSERT INTO listeners " +
                                    "(game_name, discord_server_id, discord_user_id, game_account_username, game_account_id, game_account_puuid) " +
                                    "VALUES (?, ?, ?, ?, ?, ?)",
@@ -33,13 +33,13 @@ class ListenersDataInterface:
         return cursor.lastrowid
 
     def delete_listener(self, id: int) -> int:
-        logger.debug("delete_listener id: " + str(id))
+        logger.debug("delete_listener id: " + str(id) + " from db")
         count =  self.conn.execute("DELETE FROM listeners WHERE id = ?", (id,)).rowcount
         self.conn.commit()
         return count
 
     def get_listener(self, id: int) -> Listener:
-        logger.debug("get_listener id: " + str(id))
+        logger.debug("get_listener id: " + str(id) + " from db")
         cursor = self.conn.execute("SELECT * FROM listeners WHERE id = ?", (id,))
         row = cursor.fetchone()
 
@@ -55,7 +55,7 @@ class ListenersDataInterface:
                                    row[6])
 
     def get_all_listeners(self) -> List[Listener]:
-        logger.debug("get_all_listeners")
+        logger.debug("get_all_listeners from db")
         cursor = self.conn.execute("SELECT * FROM listeners")
         rows = cursor.fetchall()
         
@@ -73,7 +73,7 @@ class ListenersDataInterface:
         return listener_list
 
     def get_all_game_listeners(self, game_name: str) -> List[Listener]:
-        logger.debug("get_all_game_listeners game_name: " + game_name)
+        logger.debug("get_all_game_listeners game_name: " + game_name + " from db")
         cursor = self.conn.execute("SELECT * FROM listeners WHERE game_name = ?", (game_name,))
         rows = cursor.fetchall()
         
@@ -91,7 +91,7 @@ class ListenersDataInterface:
         return listener_list
 
     def get_all_server_listeners(self, discord_server_id: int) -> List[Listener]:
-        logger.debug("get_all_server_listeners server_id: " + str(discord_server_id))
+        logger.debug("get_all_server_listeners server_id: " + str(discord_server_id) + " from db")
         cursor = self.conn.execute("SELECT * FROM listeners WHERE discord_server_id = ?", (discord_server_id,))
         rows = cursor.fetchall()
         
@@ -109,7 +109,7 @@ class ListenersDataInterface:
         return listener_list
 
     def get_all_user_listener(self, discord_user_id: int) -> List[Listener]:
-        logger.debug("get_all_user_listener user_id: " + str(discord_user_id))
+        logger.debug("get_all_user_listener user_id: " + str(discord_user_id) + " from db")
         cursor = self.conn.execute("SELECT * FROM listeners WHERE discord_user_id = ?", (discord_user_id,))
         rows = cursor.fetchall()
         
@@ -127,7 +127,7 @@ class ListenersDataInterface:
         return listener_list
     
     def get_user_listener(self, discord_user_id: int, discord_server_id: int, username: str, game_name: str) -> Listener:
-        logger.debug("get_user_listener user_id: " + str(discord_user_id) + " server_id: " + str(discord_server_id) + " username: " + username + " game_name: " + game_name)
+        logger.debug("get_user_listener user_id: " + str(discord_user_id) + " server_id: " + str(discord_server_id) + " username: " + username + " game_name: " + game_name + " from db")
         cursor = self.conn.execute("SELECT * FROM listeners WHERE discord_user_id = ? AND discord_server_id = ? AND game_name = ? AND game_account_username = ?", (discord_user_id, discord_server_id, game_name, username))    
         row = cursor.fetchone()
 

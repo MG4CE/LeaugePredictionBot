@@ -75,6 +75,7 @@ async def on_guild_join(guild):
 async def main():
     bot.remove_command('help')
     controller_cog.watcher_thread_func.start()
+    controller_cog.gc_gameid_history_list.start()
     async with bot:
         await bot.add_cog(controller_cog)
         await bot.start(DISCORD_API_KEY)
