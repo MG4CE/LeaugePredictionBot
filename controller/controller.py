@@ -24,7 +24,7 @@ WATCHER_THREAD_WAIT_SEC = 10
 DEFAULT_START_SCORE = 1000
 SCORE_CHANGE = 50
 GAME_LENGTH_VOTING_CUTOFF_SEC = 5*60
-REMAKE_GAME_LENGTH_MILLSEC = 5*60*1000
+REMAKE_GAME_LENGTH_MILLSEC = 5*60
 GAMEID_GC_SEC = 5*60
 
 class ControllerCog(commands.Cog):
@@ -93,6 +93,7 @@ class ControllerCog(commands.Cog):
                         if match['info']['gameDuration'] < REMAKE_GAME_LENGTH_MILLSEC:
                             self.active_game_controller.active_games.remove(active_game)
                             embed = self.league_discord.generic_prompt("Game Remake", "Prediction prompt cancelled!")
+                            channel = self.bot.get_channel(server.channel_id)
                             await channel.send(embed=embed)
 
                         game_win = False
