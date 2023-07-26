@@ -63,14 +63,16 @@ controller_cog = ControllerCog(RIOT_API_KEY, sqlite_con, bot)
 
 @bot.event
 async def on_ready():
-    #TODO: change that all active guilds are in db
+    for guild in bot.guilds:
+        if controller_cog.db_controller.servers.get_server(guild.id) is None:
+            controller_cog.db_controller.servers.create_server(create_registered_server_obj(guild.id, 0, 0, "+"))
     logger.info("Bot started, logged on as {}!", bot.user)
 
 @bot.event
 async def on_guild_join(guild):
     server = controller_cog.db_controller.servers.get_server(guild.id)
     if not server:
-        controller_cog.db_controller.servers.create_server(create_registered_server_obj(guild.id, 0, 0, "/"))
+        controller_cog.db_controller.servers.create_server(create_registered_server_obj(guild.id, 0, 0, "+"))
 
 async def main():
     bot.remove_command('help')
