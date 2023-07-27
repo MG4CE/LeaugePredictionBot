@@ -50,6 +50,6 @@ class ActiveGameManager:
 
     def is_server_id_in_active_games(self, discord_server_id: Listener):
         for game in self.active_games:
-            if game.listener.discord_server_id is discord_server_id:
+            if game.listener.discord_server_id == discord_server_id:
                 return True
         return False
