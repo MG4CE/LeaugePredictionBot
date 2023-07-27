@@ -192,7 +192,7 @@ class ControllerCog(commands.Cog):
         user_stats = self.db_controller.user_stats.get_user_by_discord_id(userId, ctx.guild.id)
         
         if user_stats != None:
-            stats = create_display_user_stats_obj(user_stats.id, 
+            stats = create_display_user_stats_obj(user_stats.discord_user_id, 
                                                 user_stats.score,
                                                 0,
                                                 False,
