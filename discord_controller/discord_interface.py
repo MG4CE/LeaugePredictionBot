@@ -21,8 +21,8 @@ class DiscordInterface(ABC):
             return embed
         
         index = 1
-        for user_stats in user_stat_list:
-            embed.add_field(name=f"", value=f"**{index}.** <@{user_stats.discord_user_id}> \n Score: **{user_stats.current_score}**", inline=False)
+        for stats in user_stat_list:
+            embed.add_field(name=f"", value=f"**{index}.** <@{stats.discord_user_id}> \n Score: **{stats.score}**", inline=False)
             index += 1
 
         return embed

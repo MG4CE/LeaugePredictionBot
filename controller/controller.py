@@ -124,7 +124,7 @@ class ControllerCog(commands.Cog):
                                                                                           prediction.predicted_win,
                                                                                           user_stats.correct_predictions,
                                                                                           user_stats.wrong_predictions + 1))
-                                self.db_controller.user_stats.update_user_stats(user_stats.id, user_stats.correct_predictions + 1, user_stats.wrong_predictions, user_stats.score - SCORE_CHANGE)
+                                self.db_controller.user_stats.update_user_stats(user_stats.id, user_stats.correct_predictions, user_stats.wrong_predictions + 1, user_stats.score - SCORE_CHANGE)
                         
                         embed = None
                         if user_stats_disp_list:
