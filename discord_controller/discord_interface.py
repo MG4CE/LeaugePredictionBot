@@ -16,7 +16,7 @@ class DiscordInterface(ABC):
     def leaderboard_prompt(self, user_stat_list: list) -> discord.embeds:
         embed = discord.Embed(title=f"Leaderboard", color=0xf58442)
         
-        if user_stat_list != None:
+        if user_stat_list == None:
             embed.description = "No user stats available"
             return embed
         
