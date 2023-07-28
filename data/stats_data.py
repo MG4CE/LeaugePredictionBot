@@ -80,9 +80,9 @@ class StatsDataInterface:
         self.conn.commit()
         return count
     
-    def get_top_user_score_list(self, num_entries: int) -> List[UserStats]:
+    def get_top_user_score_list(self, num_entries: int, server_id: int) -> List[UserStats]:
         logger.debug("get_top_user_score_list from db")
-        cursor = self.conn.execute("SELECT * FROM user_stats ORDER BY score DESC LIMIT ?", (num_entries, ))
+        cursor = self.conn.execute("SELECT * FROM user_stats where discord_server_id = ? ORDER BY score DESC LIMIT ?", (server_id, num_entries))
         rows = cursor.fetchall()
         
         top_score_users = []

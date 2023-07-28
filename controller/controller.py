@@ -23,7 +23,7 @@ PREDICTION_TIMEOUT_SEC = 5*60
 WATCHER_THREAD_WAIT_SEC = 10
 DEFAULT_START_SCORE = 1000
 SCORE_CHANGE = 50
-GAME_LENGTH_VOTING_CUTOFF_SEC = 5*60
+GAME_LENGTH_VOTING_CUTOFF_SEC = 30*60
 REMAKE_GAME_LENGTH_MILLSEC = 5*60
 GAMEID_GC_SEC = 5*60
 
@@ -84,12 +84,14 @@ class ControllerCog(commands.Cog):
         #TODO: add gc for cancelled games or games that never ended
         for active_game in self.active_game_controller.active_games:
             if self.league_api.is_match_done(active_game.listener.game_account_id):
-                logger.info("{} has finished their {} game", active_game.listener.game_account_username, active_game.listener.game_name)
-
                 match_list = self.league_api.get_matchlist_by_puuid(active_game.listener.game_account_puuid)
                 if match_list:
                     match = self.league_api.get_match_by_id(match_list[0])
                     if match:
+                        if match['info']['gameId'] != active_game.match_id:
+                            continue
+
+                        logger.info("{} has finished their {} game", active_game.listener.game_account_username, active_game.listener.game_name)
                         if match['info']['gameDuration'] < REMAKE_GAME_LENGTH_MILLSEC:
                             self.active_game_controller.active_games.remove(active_game)
                             embed = self.league_discord.generic_prompt("Game Remake", "Prediction prompt cancelled!")
@@ -173,7 +175,8 @@ class ControllerCog(commands.Cog):
     @commands.command()
     async def leaderboard(self, ctx):
         logger.debug("leaderboard command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
-        user_list = self.db_controller.user_stats.get_top_user_score_list(LEADERBOARD_USER_LIMIT)
+        user_list = self.db_controller.user_stats.get_top_user_score_list(LEADERBOARD_USER_LIMIT, ctx.guild.id)
+        print(user_list)
         await ctx.send(embed=self.league_discord.leaderboard_prompt(user_list))
 
     @commands.command()
