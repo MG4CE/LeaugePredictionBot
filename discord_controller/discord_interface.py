@@ -40,6 +40,18 @@ class DiscordInterface(ABC):
         embed.add_field(name=f"**Wrong Predictions:**", value=f"{user_stats.wrong_predictions}", inline=False)
         return embed
     
+    def rank_prompt(self, league_account_list, rank_list: list) -> discord.embeds:
+        embed = discord.Embed(title=f"Solo-Q Rank", color=0xf58442)
+        
+        if rank_list == None:
+            embed.description = "No user ranks available"
+            return embed
+        
+        for ranks in rank_list:
+            embed.add_field(name=f"", value=f"**{index}.** <@{league_account_list[ranks]}> \n Rank: **{rank_list[ranks]}**", inline=False)
+
+        return embed
+    
     def error_prompt(self, error_message: str) -> discord.embeds:
         return discord.Embed(title=f"Error", description=error_message, color=0xda2d43)
     
