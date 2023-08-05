@@ -107,15 +107,16 @@ class LeagueAPI(GameInterface):
             ranks = self.lol_watcher.league.by_summoner(DEFAULT_REGION, account_id)
         except ApiError as err:
             if err.response.status_code != 404:
-                logger.error("get_user_rank failed to fetch data, response code [{}]", err.response.status_code)
+                logger.error("get_user_leaguepoints failed to fetch data, response code [{}]", err.response.status_code)
                 sys.exit(1)
-            logger.debug("get_user_rank account_id={} returned an error response code [{}]", account_id, err.response.status_code)
+            logger.debug("get_user_leaguepoints account_id={} returned an error response code [{}]", account_id, err.response.status_code)
             return None
-
+        
         logger.debug("get_user_rank account_id={} returned a 200 response", account_id)
 
         for rank in ranks:
             if rank['queueType'] == "RANKED_SOLO_5x5":
+                logger.debug("leaguePoints = {}", rank['leaguePoints'])
                 return rank['leaguePoints']
         return "noob"
         
