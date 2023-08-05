@@ -219,9 +219,6 @@ class ControllerCog(commands.Cog):
 
     @commands.command(name="create_listener")
     async def create_listener(self, ctx, arg1, user: discord.User=None):
-        if ctx.author.id != SUPER_ADMIN_TESTING:
-            return
-        
         logger.debug("create_listener command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
 
         if not user or not arg1:
@@ -259,8 +256,6 @@ class ControllerCog(commands.Cog):
 
     @commands.command(name="delete_listener")
     async def delete_listener(self, ctx, arg1, user: discord.User=None):
-        if ctx.author.id != SUPER_ADMIN_TESTING:
-            return
         
         logger.debug("delete_listener command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
         
@@ -289,9 +284,6 @@ class ControllerCog(commands.Cog):
 
     @commands.command()
     async def set_channel(self, ctx):
-        if ctx.author.id != SUPER_ADMIN_TESTING:
-            return
-
         logger.debug("set_channel command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
 
         server = self.db_controller.servers.get_server(ctx.guild.id)
