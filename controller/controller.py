@@ -184,15 +184,23 @@ class ControllerCog(commands.Cog):
     @commands.command()
     async def ranks(self, ctx, *account_names):
         rank_list = []
+        lp_list = []
         print_list = []
+        
         logger.debug("ranks command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
+        # Get ranks for each username in account_names.
         for account_name in account_names:
             account_data = self.league_api.get_account_data(account_name)
             rank = self.league_api.get_user_rank(account_data["id"])
             rank_list.append(rank)
-
+            #Implement retrieval of LeaguePoints for each username if possible
+            lp = self.league_api.get_user_leaguepoints(account_data["id"])
+            lp_list.append(lp)
+        
+        
+        # appending usernames and ranks to print_list.
         for i in range(0, len(rank_list)):
-            print_list.append(account_names[i] + " " + rank_list[i])
+            print_list.append(account_names[i] + " " + rank_list[i] + " lp: " + lp_list[i])
             
         await ctx.send(embed=self.league_discord.generic_prompt("Ranks", "\n".join(print_list)))
 
