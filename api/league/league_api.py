@@ -112,7 +112,7 @@ class LeagueAPI(GameInterface):
             logger.debug("get_user_leaguepoints account_id={} returned an error response code [{}]", account_id, err.response.status_code)
             return None
         
-        logger.debug("get_user_rank account_id={} returned a 200 response", account_id)
+        logger.debug("get_user_leaguepoints account_id={} returned a 200 response", account_id)
 
         for rank in ranks:
             if rank['queueType'] == "RANKED_SOLO_5x5":
