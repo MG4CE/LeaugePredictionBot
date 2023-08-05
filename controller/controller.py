@@ -192,7 +192,7 @@ class ControllerCog(commands.Cog):
             rank_list.append(rank)
 
         for i in range(0, len(rank_list)):
-            print_list.append(account_name[i] + " " + rank_list[i])
+            print_list.append(account_names[i] + " " + rank_list[i])
             
         await ctx.send(embed=self.league_discord.generic_prompt("Ranks", "\n".join(print_list)))
 
