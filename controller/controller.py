@@ -182,12 +182,10 @@ class ControllerCog(commands.Cog):
     # Command +ranks
     # Prints Solo Q Ranks for accounts in list. 
     @commands.command()
-    async def ranks(self, ctx):
-        league_account_list["Vicious Joke", "Lofranza", "Almustafa", "ZorroDelaVega", "BakedAvocado", "Blood232", "feartheM00", "WE WAS IN PARIS"]
+    async def ranks(self, ctx, account_name: str):
         logger.debug("ranks command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
-	    #for x in range(len(league_account_list)):
-        rank_list = self.league_api.get_user_rank(league_account_list)
-        await ctx.send(embed=self.league_discord.rank_prompt(league_account_list, rank_list))
+        rank = self.league_api.get_user_rank(account_name)
+        await ctx.send(embed=self.league_discord.generic_prompt(account_name + " rank", rank))
 
 
     @commands.command()
