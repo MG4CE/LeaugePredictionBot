@@ -186,6 +186,7 @@ class ControllerCog(commands.Cog):
         logger.debug("ranks command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
         account_data = self.league_api.get_account_data(account_name)
         rank = self.league_api.get_user_rank(account_data["summonerId"])
+        print(rank)
         await ctx.send(embed=self.league_discord.generic_prompt(account_name + " rank", rank))
 
 
