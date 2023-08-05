@@ -31,19 +31,6 @@ class LeagueAPI(GameInterface):
 
         logger.debug("get_account_data username={} returned a 200 response", username)
         return response
-
-    def get_summoner_data(self, id: str) -> dict:
-        try:
-            response = self.lol_watcher.league.by_summoner(DEFAULT_REGION, id)
-        except ApiError as err:
-            if err.response.status_code != 404:
-                logger.error("get_summoner_data failed to fetch data, response code [{}]", err.response.status_code)
-                sys.exit(1)
-            logger.debug("get_summoner_data id={} returned an error response code [{}]", id, err.response.status_code)
-            return None
-
-        logger.debug("get_summoner_data id={} returned a 200 response", id)
-        return response
     
     def is_user_in_game(self, account_id: str) -> bool:
         try:
