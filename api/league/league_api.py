@@ -117,7 +117,7 @@ class LeagueAPI(GameInterface):
         for rank in ranks:
             if rank['queueType'] == "RANKED_SOLO_5x5":
                 logger.debug("leaguePoints = {}", rank['leaguePoints'])
-                return rank['leaguePoints']
+                return str(rank['leaguePoints'])
         return "noob"
         
     def get_matchlist_by_puuid(self, puuid: str) -> dict:
