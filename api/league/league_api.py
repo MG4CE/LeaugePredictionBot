@@ -31,7 +31,7 @@ class LeagueAPI(GameInterface):
 
         logger.debug("get_account_data username={} returned a 200 response", username)
         return response
-
+    
     def is_user_in_game(self, account_id: str) -> bool:
         try:
             response = self.lol_watcher.spectator.by_summoner(DEFAULT_REGION, account_id)
@@ -88,7 +88,25 @@ class LeagueAPI(GameInterface):
             if rank['queueType'] == "RANKED_SOLO_5x5":
                 return rank['tier'].capitalize() + " " + rank['rank']
         return "Unranked"
+    
+    def get_user_leaguepoints(self, account_id: str) -> str:
+        try:
+            ranks = self.lol_watcher.league.by_summoner(DEFAULT_REGION, account_id)
+        except ApiError as err:
+            if err.response.status_code != 404:
+                logger.error("get_user_leaguepoints failed to fetch data, response code [{}]", err.response.status_code)
+                sys.exit(1)
+            logger.debug("get_user_leaguepoints account_id={} returned an error response code [{}]", account_id, err.response.status_code)
+            return None
+        
+        logger.debug("get_user_leaguepoints account_id={} returned a 200 response", account_id)
 
+        for rank in ranks:
+            if rank['queueType'] == "RANKED_SOLO_5x5":
+                logger.debug("leaguePoints = {}", rank['leaguePoints'])
+                return str(rank['leaguePoints'])
+        return "noob"
+        
     def get_matchlist_by_puuid(self, puuid: str) -> dict:
         try:
             response = self.lol_watcher.match.matchlist_by_puuid(DEFAULT_REGION, puuid)

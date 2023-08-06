@@ -178,6 +178,32 @@ class ControllerCog(commands.Cog):
         user_list = self.db_controller.user_stats.get_top_user_score_list(LEADERBOARD_USER_LIMIT, ctx.guild.id)
         print(user_list)
         await ctx.send(embed=self.league_discord.leaderboard_prompt(user_list))
+    
+    # Command +ranks
+    # Prints Solo Q Ranks for accounts in list. 
+    @commands.command()
+    async def ranks(self, ctx, *account_names):
+        rank_list = []
+        lp_list = []
+        print_list = []
+        
+        logger.debug("ranks command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
+        # Get ranks for each username in account_names.
+        for account_name in account_names:
+            account_data = self.league_api.get_account_data(account_name)
+            rank = self.league_api.get_user_rank(account_data["id"])
+            rank_list.append(rank)
+            #Implement retrieval of LeaguePoints for each username if possible
+            lp = self.league_api.get_user_leaguepoints(account_data["id"])
+            lp_list.append(lp)
+        
+        
+        # appending usernames and ranks to print_list.
+        for i in range(0, len(rank_list)):
+            print_list.append(account_names[i] + "  " + rank_list[i] + "   lp: " + lp_list[i])
+            
+        await ctx.send(embed=self.league_discord.generic_prompt("Ranks", "\n".join(print_list)))
+
 
     @commands.command()
     async def help(self, ctx):
@@ -208,9 +234,6 @@ class ControllerCog(commands.Cog):
 
     @commands.command(name="create_listener")
     async def create_listener(self, ctx, arg1, user: discord.User=None):
-        if ctx.author.id != SUPER_ADMIN_TESTING:
-            return
-        
         logger.debug("create_listener command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
 
         if not user or not arg1:
@@ -248,8 +271,6 @@ class ControllerCog(commands.Cog):
 
     @commands.command(name="delete_listener")
     async def delete_listener(self, ctx, arg1, user: discord.User=None):
-        if ctx.author.id != SUPER_ADMIN_TESTING:
-            return
         
         logger.debug("delete_listener command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
         
@@ -278,9 +299,6 @@ class ControllerCog(commands.Cog):
 
     @commands.command()
     async def set_channel(self, ctx):
-        if ctx.author.id != SUPER_ADMIN_TESTING:
-            return
-
         logger.debug("set_channel command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
 
         server = self.db_controller.servers.get_server(ctx.guild.id)
