@@ -97,6 +97,7 @@ class ControllerCog(commands.Cog):
                             embed = self.league_discord.generic_prompt("Game Remake", "Prediction prompt cancelled!")
                             channel = self.bot.get_channel(server.channel_id)
                             await channel.send(embed=embed)
+                            continue
 
                         game_win = False
                         user_stats_disp_list = []
@@ -176,7 +177,6 @@ class ControllerCog(commands.Cog):
     async def leaderboard(self, ctx):
         logger.debug("leaderboard command triggered. user[{}] server[{}]", ctx.author.id, ctx.guild.id)
         user_list = self.db_controller.user_stats.get_top_user_score_list(LEADERBOARD_USER_LIMIT, ctx.guild.id)
-        print(user_list)
         await ctx.send(embed=self.league_discord.leaderboard_prompt(user_list))
     
     # Command +ranks
